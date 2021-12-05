@@ -1,0 +1,19 @@
+{
+    "name": "eco-rewards",
+    "version": "1.0.0",
+    "description": "Blockchain Powered By Ethereum",
+    "main": "truffle-config.js",
+    "scripts": {
+        "dev": "lite-server",
+        "test": "echo \"Error: no test specified\" && sexit 1"
+    },
+    "author": "JY",
+    "license": "ISC",
+    "devDependencies": {
+        "lite-server": "2.3",
+        "web3": "1.5.2"
+    },
+    "dependencies": {
+        "web3": "^1.6.1"
+    }
+}
