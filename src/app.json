@@ -1,0 +1,19 @@
+{
+    "name": "ETH API",
+    "version": 2,
+    "builds": [
+        {
+            "src": "/app.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/get",
+            "dest": "/app.js"
+        }
+    ],
+    "env":{
+        "MEMONIC": "@mnemonic"
+    }
+}
