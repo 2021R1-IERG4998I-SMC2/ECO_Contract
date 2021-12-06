@@ -2,13 +2,6 @@ pragma solidity ^0.8.2;
 
 contract Token{
 
-    struct User{
-        uint id;
-        string name;
-        uint balance;
-    }
-
-    mapping(address => User) public users;
     mapping(address => uint) public balances;
     mapping(address => mapping(address => uint)) public allowance;
 
@@ -16,17 +9,13 @@ contract Token{
     string public name = "JY";
     string public symbol = "ECO";
     uint public decimals = 18;
+    uint public price = 0;
 
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
     
     constructor() {
         balances[msg.sender] = totalSupply;
-    }
-
-    function setProfile(uint _id, string memory _name, uint _balance) public {
-        User memory user = User(_id, _name, _balance);
-        users[msg.sender] = user;
     }
 
     function balanceOf(address owner) public view returns(uint) {
@@ -56,8 +45,12 @@ contract Token{
         return true;
     }
 
-    function examineTransaction(string memory id) public returns(uint){
-        
+    function examineTransaction(string memory transactionId, address buyer) public returns(uint){
+        // To-be-implemented
+    }
+
+    function purchase(uint _price) public {
+        price = _price;
     }
 
 }
