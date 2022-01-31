@@ -9,7 +9,6 @@ contract Token{
     string public name = "JY";
     string public symbol = "ECO";
     uint public decimals = 18;
-    uint public price = 0;
 
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
@@ -49,8 +48,14 @@ contract Token{
         // To-be-implemented
     }
 
-    function purchase(uint _price) public {
-        price = _price;
+    function reward(address from, uint rewards) public {
+        balances[from] += rewards;
+
+    }
+
+    function purchase(address from, uint price) public {
+        require(balanceOf(from) >= price, 'balance too low');
+        balances[from] -= price;
     }
 
 }
