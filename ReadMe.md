@@ -13,6 +13,6 @@ Useful commands:
 Use 'node index.js' to deploy api on localhost
 Under /src, Use 'now deploy' to deploy the api online
 
-truffle init
+truffle init // For new prokect
 truffle compile
 truffle migrate -> contract to Ganache blockchain

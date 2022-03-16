@@ -8,11 +8,12 @@ contract Token{
         uint price;
         uint transId;
         uint256 date;
+        address wallet;
     }
 
     mapping(address => uint) public balances;
     mapping(address => mapping(address => uint)) public allowance;
-    mapping(address => purchaseRecords[]) public transactions;
+    mapping(uint => purchaseRecords) public transactions;
 
     uint public totalSupply = 10000*10**18;
     string public name = "JY";
@@ -27,7 +28,7 @@ contract Token{
     event Deposit(address indexed to, uint value);
     event Withdrawl(address indexed from, uint value);
     
-    event Purchase(address indexed buyer, uint price, uint merchantId, uint256 indexed date, uint indexed transId);
+    event Purchase(uint indexed transId, uint256 indexed date, uint price, uint merchantId);
     event TokenRedeem(address indexed to, uint value, uint indexed transId);
 
 
@@ -82,29 +83,38 @@ contract Token{
         emit Withdrawl(msg.sender, value);
     }
 
-    function insertPurchaseRecord(address buyer, uint price, uint merchantId, uint256 date, uint transId) public {
-        require(transId == transactionIdIterable, 'Transaction Not Match');
-        transactions[buyer][transId].price = price;
-        transactions[buyer][transId].merchantId = merchantId;
-        transactions[buyer][transId].date = date;
-        emit Purchase(buyer, price, merchantId, date, transId);
-        // Redeem tokens
-        tokenRedeem(buyer, price, transId);
-    }
+    // Security to-be-implemented
+    function insertPurchaseRecord(uint price, uint merchantId, uint256 date, uint transId) public returns(bool) {
+        require(transId != transactions[transId].transId, 'Transaction already exists');
+        transactions[transId].price = price;
+        transactions[transId].merchantId = merchantId;
+        transactions[transId].date = date;
+        transactions[transId].transId = transId;
 
-    function getPurchaseRecord(uint transId, address buyer) public view returns(uint, uint, uint, uint256){
-        return(transactions[buyer][transId].merchantId, transactions[buyer][transId].price, transactions[buyer][transId].transId, transactions[buyer][transId].date);
-    }
-
-    function tokenRedeem(address to, uint value, uint transId) public returns(bool){
-        require(balanceOf(issuer) >= value, 'balance too low');
-        balances[to] += value;
-        balances[issuer] -= value;
-        emit TokenRedeem(to, value, transId);
+        emit Purchase(transId, date, price, merchantId);
         return true;
     }
 
-    function getNewTransactionId() public returns(uint){
+    function getPurchaseRecord(uint transId) public view returns(uint, uint, uint, uint256){
+        return(transactions[transId].merchantId, transactions[transId].price, transactions[transId].transId, transactions[transId].date);
+    }
+
+    // Security to-be-implemented
+    function tokenRedeem(address to, uint value, uint transId) public returns(uint){
+        require(transId == transactionIdIterable, 'Transaction Not Match');
+        require(balanceOf(issuer) >= value, 'balance too low');
+
+        // Fill up user's wallet to record
+        transactions[transId].wallet == to;
+
+        balances[to] += value;
+        balances[issuer] -= value;
+        emit TokenRedeem(to, value, transId);
+        return value;
+    }
+
+    // Security to-be-implemented
+    function newTransactionId() public returns(uint){
         transactionIdIterable += 1;
         return transactionIdIterable;
     }
