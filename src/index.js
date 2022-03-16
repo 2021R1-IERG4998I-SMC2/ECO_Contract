@@ -475,16 +475,20 @@ var ABI = [{
 
 const app = express();
 
-const CONTRACT_ADDRESS = '0x385C715c1839282107301fc3FC038475e1D9a7db';
+const CONTRACT_ADDRESS = '0x630B84d98194189C229D08Eff3Ae43603131afB6';
 const port = process.env.PORT || 3000;
 
-const provider = ethers.getDefaultProvider('http://localhost:7545');
-const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
-/*
+//const provider = ethers.providers.InfuraProvider('ropsten');
+
 const provider = ethers.getDefaultProvider('ropsten', {
     etherscan: 'XG8SVMQUJIWP8HRJRIPNZZGJ9C617HGYMT'
-})
-*/
+});
+
+//const provider = ethers.getDefaultProvider('http://localhost:7545');
+const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+
+
+
 app.get('/getBalance', async(req, res) => {
     wallet_address = req.query.wallet;
     var value = await contract.balanceOf(wallet_address);
@@ -518,8 +522,10 @@ app.get('/getClaimDetails', async(req, res) => {
 })
 
 app.get('/getRewards', async(req, res) => {
-    signer = provider.getSigner();
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    const privateKey = '789b46357a2a86720d7d834b20ba3f10489fee88244b94007c4c4992286273cd';
+    const signWallet = new ethers.Wallet(privateKey, provider);
+    //const signer = signWallet.connect(InfuraProvider);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signWallet);
     wallet = req.query.wallet;
     tokens = req.query.tokens;
     transId = req.query.transId;
