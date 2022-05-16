@@ -4,8 +4,9 @@ pragma solidity ^0.8.2;
 contract Token{
 
     struct purchaseRecords{
+        bytes32 hashValue;
         uint merchantId;
-        uint price;
+        uint token;
         uint transId;
         uint256 date;
         address wallet;
@@ -84,9 +85,10 @@ contract Token{
     }
 
     // Security to-be-implemented
-    function insertPurchaseRecord(uint price, uint merchantId, uint256 date, uint transId) public returns(bool) {
+    function insertPurchaseRecord(uint price, uint merchantId, uint256 date) public returns(bool) {
+        uint transId = newTransactionId();
         require(transId != transactions[transId].transId, 'Transaction already exists');
-        transactions[transId].price = price;
+        transactions[transId].token = price;
         transactions[transId].merchantId = merchantId;
         transactions[transId].date = date;
         transactions[transId].transId = transId;
@@ -96,7 +98,7 @@ contract Token{
     }
 
     function getPurchaseRecord(uint transId) public view returns(uint, uint, uint, uint256){
-        return(transactions[transId].merchantId, transactions[transId].price, transactions[transId].transId, transactions[transId].date);
+        return(transactions[transId].merchantId, transactions[transId].token, transactions[transId].transId, transactions[transId].date);
     }
 
     // Security to-be-implemented

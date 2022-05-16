@@ -563,6 +563,21 @@ app.get('/getRewards', async(req, res) => {
         */
 })
 
+app.get('/upClaimDetails/:price/:merchantId/:date/:transId', async(req, res) => {
+    price = req.params.price;
+    date = req.params.date;
+    transId = req.params.transId;
+    merchantId = req.params.merchantId;
+
+    await contract.insertPurchaseRecord(price,merchantId,date,transId);
+
+    try {
+        res.send("Transaction uploaded to blockchain.");
+    } catch (e) {
+        res.send(e);
+    }
+})
+
 app.listen(port, () => {
     console.log(`listening on port ${port}`);
 })
