@@ -1,5 +1,6 @@
 const ethers = require('ethers');
 const express = require('express');
+const QRCode = require('qrcode')
 
 var ABI = [{
         "inputs": [],
@@ -563,16 +564,80 @@ app.get('/getRewards', async(req, res) => {
         */
 })
 
-app.get('/upClaimDetails/:price/:merchantId/:date/:transId', async(req, res) => {
-    price = req.params.price;
-    date = req.params.date;
-    transId = req.params.transId;
-    merchantId = req.params.merchantId;
+app.get('/upClaimDetails', async(req, res) => {
+    price = req.query.price;
+    date = req.query.date;
+    merchantId = req.query.merchantId;
 
-    await contract.insertPurchaseRecord(price,merchantId,date,transId);
-
+    await contract.insertPurchaseRecord(merchantId,date);
+    value = await contract.tokenRedeem(merchantId,date,transId);
     try {
         res.send("Transaction uploaded to blockchain.");
+    } catch (e) {
+        res.send(e);
+    }
+})
+
+// Fake for Demo Purpose
+
+var purchaseRecord = {};    
+
+var transId = 1000;
+
+app.get('/upDetails', async(req, res) => {
+    transId = transId+1;
+    price = req.query.price;
+    merchantId = req.query.merchantId;
+    newRecord = {
+        "price": price,
+        "tokens": price*0.1,
+        "merchantId": merchantId
+    }
+
+    purchaseRecord[transId] = newRecord;
+
+    transIdQRCode = transId.toString();
+    QRCode.toString(transIdQRCode, function(err, code){
+        if(err) return console.log(err)
+        res.setHeader('content-type', 'image/png');
+        QRCode.toFileStream(res, transIdQRCode);
+    })
+})
+
+app.get('/getDetails', async(req, res) => {
+    transId = req.query.transId;
+    try{
+        merchantId = purchaseRecord[transId]["merchantId"];
+        price = purchaseRecord[transId]["price"];
+        tokens = purchaseRecord[transId]["tokens"];
+        
+        var detailsToJson = "{\"id\"\: " + transId + ",";
+        detailsToJson += "\"merchantId\"\: " + merchantId + ",";
+        detailsToJson += "\"price\"\: " + price + ",";
+        detailsToJson += "\"tokens\"\: " + tokens + "}";
+    
+        var detailsObj = JSON.parse(detailsToJson);
+        res.send(detailsObj);
+    }catch(e){
+        res.send(e);
+    }
+})
+
+app.get('/getPoints', async(req, res) => {
+    try {
+    const privateKey = '789b46357a2a86720d7d834b20ba3f10489fee88244b94007c4c4992286273cd';
+    const signWallet = new ethers.Wallet(privateKey, provider);
+    //const signer = signWallet.connect(InfuraProvider);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signWallet);
+    wallet = req.query.wallet;
+    tokens = req.query.tokens;
+
+    await contract.transfer(wallet, (tokens * 10 ** 18).toString());
+
+    var balanceToJson = "{\"balance\"\: " + tokens + "}";
+    var balanceObj = JSON.parse(balanceToJson);
+    
+        res.send(balanceObj);
     } catch (e) {
         res.send(e);
     }
